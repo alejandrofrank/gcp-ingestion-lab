@@ -16,8 +16,20 @@
   <section class="masthead">
     <div><p class="eyebrow">GCS → EVENTARC → BIGQUERY</p><h1>See what survives.</h1><p class="lede">Change a rule. Follow a row. See the result.</p></div>
     <div class="preset-control">
-      <label for="preset">Experiment</label>
-      <div class="preset-row"><select id="preset"></select><button id="reset" class="ghost" title="Restore this experiment's defaults">↺ Reset</button></div>
+      <div class="preset-heading">
+        <label for="preset">Choose an experiment</label>
+        <div class="preset-actions">
+          <span id="preset-position" class="preset-position" aria-live="polite">— / 7</span>
+          <button id="reset" class="preset-reset" type="button" title="Restore this experiment's defaults" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1.5 7M4 4v6h6"/></svg><span>Reset</span>
+          </button>
+        </div>
+      </div>
+      <div class="preset-row">
+        <button id="previous-experiment" class="preset-arrow" type="button" aria-label="Previous experiment" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button>
+        <select id="preset" disabled></select>
+        <button id="next-experiment" class="preset-arrow" type="button" aria-label="Next experiment" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
+      </div>
     </div>
   </section>
   <main id="experiment" class="experiment" aria-busy="false">
