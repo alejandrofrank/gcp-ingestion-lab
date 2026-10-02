@@ -20,7 +20,7 @@ button, select, input, summary, a { -webkit-tap-highlight-color: transparent; }
 button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible, a:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
 button:disabled, select:disabled, input:disabled { cursor: default; opacity: .55; }
 [hidden] { display: none !important; }
-.shell { width: 100%; padding: 0 28px; }
+.shell { --lab-columns: minmax(245px,.85fr) minmax(440px,1.65fr) minmax(260px,1fr); --lab-gap: 16px; width: 100%; padding: 0 28px; }
 .top { height: 66px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 18px; }
 .brand { display: flex; align-items: center; gap: 7px; font: bold 32px var(--sans); letter-spacing: -2px; }
 .brand > span:first-child { color: var(--mint); }
@@ -28,22 +28,29 @@ button:disabled, select:disabled, input:disabled { cursor: default; opacity: .55
 .top-right { display: flex; gap: 26px; font: 10px var(--mono); }
 .local { color: var(--muted); display: flex; gap: 8px; align-items: center; }
 .local i { width: 5px; height: 5px; border-radius: 50%; background: var(--mint); }
-.masthead { display: flex; align-items: center; justify-content: space-between; gap: 30px; padding: 28px 0; }
+.masthead { display: grid; grid-template-columns: var(--lab-columns); align-items: center; column-gap: var(--lab-gap); padding: 28px 0; }
 .eyebrow { font: 600 11px var(--mono); color: var(--mint); letter-spacing: 1.2px; margin: 0; }
 .masthead .eyebrow { margin-bottom: 10px; }
 h1 { font-size: clamp(32px, 2.9vw, 46px); font-weight: 650; line-height: 1.12; letter-spacing: -1.5px; margin: 0 0 8px; }
 h2 { font-size: 22px; font-weight: 600; letter-spacing: -.4px; margin: 0 0 6px; }
 h3 { margin: 0; font-size: 14px; font-weight: 550; }
 .lede { color: #a4b5bc; margin: 0; font-size: 14px; }
-.preset-control { min-width: 365px; padding: 14px 16px; border: 1px solid #3e5b49; border-radius: 10px; background: #142119; box-shadow: 0 7px 28px #0002; }
-.preset-control > label { display: block; font: 600 12px var(--sans); color: #d3e9d1; margin-bottom: 9px; }
-.preset-control select { font-size: 14px; font-weight: 550; border-color: #526653; padding: 11px 12px; }
-.preset-row { display: flex; gap: 8px; }
+.preset-control { grid-column: 2; justify-self: center; width: 100%; max-width: 640px; min-width: 0; padding: 14px 16px 16px; border: 1px solid #56725b; border-radius: 12px; background: #17251d; box-shadow: 0 7px 28px #0002; }
+.preset-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
+.preset-heading > label { font: 600 13px var(--sans); color: #d3e9d1; }
+.preset-actions { display: flex; align-items: center; gap: 12px; }
+.preset-position { font: 11px var(--mono); color: #aec9ad; white-space: nowrap; }
+.preset-row { display: grid; grid-template-columns: 44px minmax(0,1fr) 44px; gap: 8px; }
+.preset-control select { height: 48px; font-size: 15px; font-weight: 550; border-color: #6c8a6e; padding: 11px 14px; border-radius: 8px; }
+.preset-arrow, .preset-reset { display: flex; align-items: center; justify-content: center; border: 1px solid #49634e; background: #203529; color: #d7eed1; border-radius: 8px; }
+.preset-arrow { height: 48px; padding: 0; }
+.preset-reset { min-height: 32px; padding: 5px 8px; gap: 5px; font-size: 12px; background: transparent; border-color: transparent; }
+.preset-arrow svg, .preset-reset svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.preset-arrow:hover:not(:disabled), .preset-reset:hover:not(:disabled) { background: #2b4634; border-color: var(--mint); }
+.preset-arrow:disabled { opacity: .3; }
 select { color: var(--text); background: #0b1419; border: 1px solid #34454e; border-radius: 6px; padding: 10px 12px; min-width: 0; width: 100%; font-size: 12px; }
 option { background: #111c22; color: var(--text); }
-.ghost { white-space: nowrap; border: 1px solid #526653; background: #1c2c21; color: var(--text); font: 12px var(--sans); padding: 10px 12px; border-radius: 6px; }
-.ghost:hover { border-color: var(--mint); }
-.experiment { display: grid; grid-template-columns: minmax(245px,.85fr) minmax(440px,1.65fr) minmax(260px,1fr); grid-template-areas: "input technique output" "input explanation output"; grid-template-rows: auto 1fr; gap: 16px; align-items: stretch; }
+.experiment { display: grid; grid-template-columns: var(--lab-columns); grid-template-areas: "input technique output" "input explanation output"; grid-template-rows: auto 1fr; gap: var(--lab-gap); align-items: stretch; }
 .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; min-width: 0; }
 .input-panel { grid-area: input; padding: 21px 18px 16px; background: #141e25; border-color: #3b515e; border-top: 3px solid #8caec1; }
 .technique-panel { grid-area: technique; padding: 18px; background: #17271d; border-color: #4a6850; border-top: 3px solid #b8efb0; }
@@ -165,15 +172,14 @@ input[type=range] { width: 100%; accent-color: var(--mint); margin: 0 0 14px; he
 #journal .fail b { color: var(--orange); }
 footer { margin: 21px 0 27px; display: flex; justify-content: space-between; gap: 20px; font-size: 10px; color: var(--muted); }
 @media (min-width: 1800px) {
-  .shell { padding: 0 44px; }
-  .experiment { grid-template-columns: minmax(300px,.9fr) minmax(560px,1.55fr) minmax(330px,1fr); gap: 20px; }
+  .shell { --lab-columns: minmax(300px,.9fr) minmax(560px,1.55fr) minmax(330px,1fr); --lab-gap: 20px; padding: 0 44px; }
   .source-row { padding: 11px 8px; }
   .source-name, .output-row h3 { font-size: 12px; }
   .source-price, .output-row .price { font-size: 13px; }
 }
 @media (max-width: 1080px) {
-  .shell { padding: 0 18px; }
-  .experiment { grid-template-columns: minmax(240px,.8fr) minmax(420px,1.4fr); grid-template-areas: "input technique" "input explanation" "output output"; }
+  .shell { --lab-columns: minmax(240px,.8fr) minmax(420px,1.4fr); padding: 0 18px; }
+  .experiment { grid-template-areas: "input technique" "input explanation" "output output"; }
   .output-list { display: grid; grid-template-columns: repeat(2,1fr); gap: 0 15px; max-height: none; }
   .output-summary { margin-top: 0; }
 }
@@ -187,7 +193,11 @@ footer { margin: 21px 0 27px; display: flex; justify-content: space-between; gap
   .masthead { display: block; padding: 25px 0 20px; }
   h1 { font-size: 34px; }
   .lede { font-size: 13px; }
-  .preset-control { margin-top: 19px; min-width: 0; }
+  .preset-control { margin-top: 19px; padding: 12px; }
+  .preset-heading { gap: 8px; }
+  .preset-heading > label { font-size: 12px; }
+  .preset-actions { gap: 8px; }
+  .preset-control select { font-size: 13px; padding: 10px; }
   .experiment { display: flex; flex-direction: column; gap: 12px; }
   .input-panel, .output-panel, .explanation-panel { padding: 17px 14px; }
   .source-list { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 3px; }

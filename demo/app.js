@@ -179,12 +179,29 @@ function schedule() {
   $('#run-state').textContent='Updating…';
   timer=setTimeout(()=>run('start'),100);
 }
+function updatePreset() {
+  const index=scenarios.findIndex(scenario=>scenario.id===current);
+  $('#preset').value=current;
+  $('#preset-position').textContent=String(index+1).padStart(2,'0')+' / '+String(scenarios.length).padStart(2,'0');
+  $('#previous-experiment').disabled=index<=0;
+  $('#next-experiment').disabled=index>=scenarios.length-1;
+}
+function choosePreset(id) {
+  const scenario=scenarios.find(item=>item.id===id);
+  if(!scenario) return;
+  current=id; step='start'; selected=0;
+  updatePreset(); controls(scenario.defaults); run();
+}
 $('#input-rows').addEventListener('click',selectSource);
 $('#lineage').addEventListener('click',selectSource);
 $('#lineage').addEventListener('keydown',event=>{ if(['Enter',' '].includes(event.key)) { event.preventDefault(); selectSource(event); $('#input-rows [data-source="'+selected+'"]').focus({preventScroll:true}); } });
 for (const id of ['identity','receipts','latest']) $('#'+id).addEventListener('change',()=>{ updateKnobs(); run('start'); });
 for (const id of ['milk-price','deliveries']) $('#'+id).addEventListener('input',schedule);
-$('#preset').addEventListener('change',()=>{ current=$('#preset').value; step='start'; selected=0; controls(scenarios.find(s=>s.id===current).defaults); run(); });
+$('#preset').addEventListener('change',()=>choosePreset($('#preset').value));
+for(const [id,direction] of [['previous-experiment',-1],['next-experiment',1]]) $('#'+id).addEventListener('click',()=>{
+  const index=scenarios.findIndex(scenario=>scenario.id===current);
+  choosePreset(scenarios[index+direction]?.id);
+});
 $('#reset').addEventListener('click',()=>{ step='start'; controls(scenarios.find(s=>s.id===current).defaults); run(); });
 $('#replay').addEventListener('click',()=>run('replay'));
 $('#repair').addEventListener('click',()=>run('repair'));
@@ -198,6 +215,7 @@ try {
   if(!response.ok) throw new Error('Could not load experiments.');
   scenarios=await response.json();
   $('#preset').innerHTML=scenarios.map(s=>'<option value="'+escape(s.id)+'">'+escape(s.name)+'</option>').join('');
+  $('#preset').disabled=false; $('#reset').disabled=false; updatePreset();
   controls(scenarios[0].defaults);
   await run();
 } catch(error) { $('#run-state').textContent=error.message; }
