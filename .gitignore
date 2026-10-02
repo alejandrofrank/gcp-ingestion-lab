@@ -1,0 +1,16 @@
+node_modules/
+.env
+.env.*
+!.env.example
+coverage/
+*.log
+*.pem
+*.key
+*credentials*.json
+*service-account*.json
+terraform/.terraform/
+*.tfstate*
+*.tfplan
+*.tfvars
+!*.tfvars.example
+docs/images/capture-*.png

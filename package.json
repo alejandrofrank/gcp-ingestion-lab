@@ -1,0 +1,19 @@
+{
+  "name": "gcp-ingestion-lab",
+  "version": "0.1.0",
+  "description": "Break a CSV-to-BigQuery pipeline, then see exactly what preserves the data.",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=22" },
+  "exports": { ".": "./src/engine.js", "./gcp": "./src/gcp.js" },
+  "scripts": {
+    "dev": "node scripts/serve.js",
+    "test": "node --test",
+    "demo": "node examples/offline.js",
+    "bench": "node scripts/bench.js",
+    "check:public": "node scripts/check-public.js",
+    "cloud": "node cloud/server.js"
+  },
+  "peerDependencies": { "@google-cloud/bigquery": "^9.1.0", "@google-cloud/storage": "^8.2.0" },
+  "peerDependenciesMeta": { "@google-cloud/bigquery": { "optional": true }, "@google-cloud/storage": { "optional": true } }
+}
