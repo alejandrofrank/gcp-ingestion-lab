@@ -7,7 +7,7 @@ A visual, runnable lab for the failure boundaries in **Cloud Storage → Eventar
 [![CI](https://github.com/alejandrofrank/gcp-ingestion-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/alejandrofrank/gcp-ingestion-lab/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-a7e59b.svg)](LICENSE)
 
-![The local demo: scenario controls, pipeline stages, event journal and warehouse rows](docs/images/demo-desktop.jpg)
+![Source listings on the left, technique controls and interactive row tracing in the center, warehouse output on the right](docs/images/demo-desktop.jpg)
 
 ## Run it in 15 seconds
 
@@ -21,7 +21,11 @@ npm run dev
 
 Open **http://127.0.0.1:4313**.
 
-The browser calls the real loader core with **in-memory adapters and synthetic fixtures**. Each scenario starts fresh. Cloud timing, billing and IAM behavior are not emulated. The upload-denial scenario injects an error; it does not change any permissions.
+The browser calls the real loader core with **in-memory adapters and synthetic fixtures**. Each tweak starts fresh; identity replay seeds an earlier partition explicitly. Cloud timing, billing and IAM behavior are not emulated. The upload-denial scenario injects an error; it does not change any permissions.
+
+Read the experiment **left → center → right**. Select a source listing to highlight its path through the identity rule into the actual warehouse result. Change the milk price or number of event copies, then switch identity, receipt and timestamp rules to see what changes. Counts, prices and connections come from the loader result, not a canned animation. Raw CSV and the event journal stay behind expandable details.
+
+The lossy name rule, repeated-read adapter and last-arrival price rule live in `examples/techniques.js` for comparison. The cloud receiver uses the safe defaults and does not accept browser experiment settings.
 
 ```sh
 npm test        # Core invariants and mocked GCP adapter contracts
@@ -36,11 +40,11 @@ npm run bench  # Bounded local throughput check; no cloud calls
 | **Send it twice** | 8 rows, 1 archive read, 1 merge | A duplicate delivery finds the durable receipt before downloading or submitting warehouse work. |
 | **Scraped ≠ uploaded** | 8 collected, 0 published, 0 events | A successful collector is not proof of a successful publication. An event handler cannot see an event that never existed. |
 | **Sneak in a column** | File retained, table unchanged | The CSV cannot supply its own `product_id` or silently change the warehouse schema. |
-| **Yesterday calls back** | Older event arrives last; newer price survives | Load the event's exact object generation. Compare observation timestamps, not delivery order. |
+| **Newer first, older last** | Older event arrives last; newer price survives | Load the event's exact object generation. Compare observation timestamps, not delivery order. |
 | **Commit, then crash** | Retry re-reads, but inserts no duplicates | Warehouse commit and receipt write are separate boundaries. The MERGE remains safe if reporting fails. |
 | **Two URLs, one name** | **8 → 6 → 14 → 8** | Name identity collapses distinct listings. Replaying under new IDs double-counts. An explicit migration repairs the partition. |
 
-The identity controls are intentionally dramatic: **Replay with new IDs** exposes the duplication; **Back up & repair this partition** performs an in-memory backup and replaces only the synthetic vendor/day. This is a teaching example, not a deployed repair endpoint. See the [migration checklist](docs/operations.md#changing-identity).
+The identity controls are intentionally dramatic: **Replay with stable IDs** exposes the duplication; **Back up & repair** performs an in-memory backup and replaces only the synthetic vendor/day. This is a teaching example, not a deployed repair endpoint. See the [migration checklist](docs/operations.md#changing-identity).
 
 ![An unsafe identity replay produces fourteen rows from eight original listings](docs/images/identity-replay.jpg)
 
@@ -85,6 +89,7 @@ The [cloud guide](docs/cloud.md) contains the pinned Docker runtime, IAM boundar
 | [src/memory.js](src/memory.js) | Deterministic local archive and atomic warehouse adapter |
 | [src/gcp.js](src/gcp.js) | Exact-generation GCS reads, durable locks/receipts and BigQuery batch MERGE |
 | [examples/scenarios.js](examples/scenarios.js) | Seven failures you can inspect |
+| [examples/techniques.js](examples/techniques.js) | Bounded local tweaks and deliberately unsafe comparison adapters |
 | [docs/operations.md](docs/operations.md) | Replay, orphan locks, identity changes and publication monitoring |
 | [terraform/main.tf](terraform/main.tf) | Region-aligned, protected archive, table and authenticated receiver |
 

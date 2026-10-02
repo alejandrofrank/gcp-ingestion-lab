@@ -52,7 +52,7 @@ export function normalizeRows(csv, context) {
   return { rows: [...unique.values()], sourceRows: input.length };
 }
 
-export function createLoader({ archive, warehouse, bucket, vendors, trace = () => {} }) {
+export function createLoader({ archive, warehouse, bucket, vendors, trace = () => {}, normalize = normalizeRows }) {
   return async event => {
     let context;
     try { context = eventContext(event, { bucket, vendors }); }
@@ -63,7 +63,7 @@ export function createLoader({ archive, warehouse, bucket, vendors, trace = () =
       trace('archive', `Read the exact generation #${context.generation}.`);
       try {
         const csv = await archive.read(context);
-        const { rows, sourceRows } = normalizeRows(csv, context);
+        const { rows, sourceRows } = normalize(csv, context);
         trace('validate', `${sourceRows} source rows → ${rows.length} distinct identities. Schema is fixed.`);
         const changed = await warehouse.merge(context, rows);
         trace('warehouse', changed === null ? 'Warehouse committed. Older observations cannot replace newer ones.' : `${changed} changed observations. Older observations cannot replace newer ones.`);
