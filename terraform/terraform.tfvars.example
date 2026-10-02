@@ -1,0 +1,3 @@
+project_id = "your-sandbox-project"
+region     = "us-central1"
+image      = "us-central1-docker.pkg.dev/your-sandbox-project/demos/ingestion-lab@sha256:REPLACE_WITH_IMAGE_DIGEST"

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="560" viewBox="0 0 1400 560" role="img" aria-labelledby="title desc">
+<title id="title">A batch pipeline with explicit failure boundaries</title><desc id="desc">Collector publishes to a versioned archive, Eventarc delivers to an authenticated Cloud Run loader, which validates and commits to BigQuery before storing a receipt. Partition locks and receipts live in a separate control bucket.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10" fill="none" stroke="#a7e59b" stroke-width="1.5"/></marker></defs>
+<rect width="1400" height="560" rx="18" fill="#0b1115"/>
+<g font-family="Arial,Helvetica,sans-serif" fill="#edf0eb">
+<text x="40" y="54" fill="#a7e59b" font-size="13" letter-spacing="3">GCP INGESTION LAB / THE FLOW</text>
+<text x="40" y="98" font-size="30" font-weight="bold">Commit first. Report second. Preserve the source.</text>
+<g fill="none" stroke="#a7e59b" stroke-width="2" marker-end="url(#arrow)">
+<path d="M250 221H286"/><path d="M500 221H536"/><path d="M750 221H786"/><path d="M1000 221H1036"/>
+<path d="M895 287V331"/><path d="M1055 394H1010"/><path d="M320 287V463H878" stroke-dasharray="5 7"/>
+</g>
+<g stroke="#2f403b" fill="#121c20">
+<rect x="40" y="156" width="210" height="131" rx="10"/><rect x="290" y="156" width="210" height="131" rx="10"/>
+<rect x="540" y="156" width="210" height="131" rx="10"/><rect x="790" y="156" width="210" height="131" rx="10"/>
+<rect x="1040" y="156" width="320" height="131" rx="10"/><rect x="790" y="336" width="220" height="100" rx="10"/>
+<rect x="1060" y="336" width="300" height="100" rx="10"/>
+</g>
+<g font-size="12" fill="#a7e59b" letter-spacing="1.5">
+<text x="58" y="182">01 / PRODUCER</text><text x="308" y="182">02 / GCS</text><text x="558" y="182">03 / EVENTARC</text>
+<text x="808" y="182">04 / CLOUD RUN</text><text x="1058" y="182">05 / BIGQUERY</text>
+<text x="808" y="362">CONTROL BUCKET</text><text x="1078" y="362">COMMITTED → RECEIPT</text>
+</g>
+<g font-size="20" font-weight="bold">
+<text x="58" y="214">Collect</text><text x="308" y="214">Preserve CSV</text><text x="558" y="214">Deliver event</text>
+<text x="808" y="214">Validate</text><text x="1058" y="214">Stage + transactional MERGE</text>
+</g>
+<g font-size="14" fill="#99a7ae">
+<text x="58" y="247">Monitor publication, too</text><text x="308" y="247">Exact object generation</text><text x="558" y="247">At least once · retries</text>
+<text x="808" y="247">Fixed schema · stable IDs</text><text x="1058" y="247">Vendor/day filter · latest observed wins</text>
+<text x="808" y="389">Partition locks + receipts</text><text x="808" y="414">No archive mutation rights</text>
+<text x="1078" y="389">No receipt? Retry safely.</text><text x="1078" y="414">Uncertain job? Keep the lock.</text>
+<text x="393" y="450" fill="#a7e59b">Replay preserved generations; never substitute the latest object</text>
+<text x="40" y="518">Local demo: memory adapters / zero dependencies. Optional cloud runtime: authenticated identities / pinned SDKs.</text>
+</g></g></svg>

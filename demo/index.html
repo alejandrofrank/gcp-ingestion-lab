@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="An interactive lab for reliable CSV ingestion on Google Cloud."><title>GCP Ingestion Lab · Bakiano</title><link rel="stylesheet" href="/demo/style.css"></head>
+<body>
+<div class="shell">
+  <header class="top"><a class="brand" href="/">b<span>·</span> <span class="wordmark">BAKIANO LABS</span></a><div class="top-right"><span class="local"><i></i> LOCAL / NO CLOUD BILL</span><a href="https://github.com/alejandrofrank/gcp-ingestion-lab" target="_blank" rel="noreferrer">View source ↗</a></div></header>
+  <section class="intro"><div><p class="eyebrow">GOOGLE CLOUD · DATA ENGINEERING</p><h1>Tiny files.<br><span>Big consequences.</span></h1><p class="lede">A file arrives. An event fires. A table changes.<br>Explore everything that can go wrong in between.</p></div><div class="intro-aside"><span class="index">LAB / 03</span><p>GCS → EVENTARC → BIGQUERY</p><span class="badge">Zero dependencies for the local demo</span><p class="subtle">The demo runs the loader core with in-memory adapters.<br>Google Cloud adapters are included separately.</p></div></section>
+  <main class="workbench">
+    <aside class="controls"><p class="eyebrow">01 / BREAK SOMETHING</p><h2>Choose a boundary.</h2><div id="scenarios" class="scenarios" aria-label="Pipeline scenarios"></div></aside>
+    <section class="lab" aria-label="Scenario results">
+      <div class="lab-header"><div><p id="scenario-tag" class="eyebrow">ONE BATCH</p><h2 id="scenario-title">Happy path</h2><p id="scenario-description" class="subtle"></p></div><button id="rerun" class="ghost">Run again ↻</button></div>
+      <div id="flow" class="flow" aria-label="Pipeline stages"><div data-stage="source"><span>01</span><b>Collect</b><small>Source rows</small></div><div data-stage="archive"><span>02</span><b>Archive</b><small>Exact generation</small></div><div data-stage="event"><span>03</span><b>Event</b><small>At least once</small></div><div data-stage="validate"><span>04</span><b>Validate</b><small>Fixed schema</small></div><div data-stage="warehouse"><span>05</span><b>Merge</b><small>One batch</small></div></div>
+      <div class="metrics"><div><span>ARCHIVED FILES</span><strong id="metric-files">—</strong></div><div><span>WAREHOUSE ROWS</span><strong id="metric-rows">—</strong></div><div><span>ARCHIVE READS</span><strong id="metric-reads">—</strong></div><div><span>MERGE JOBS</span><strong id="metric-jobs">—</strong></div></div>
+      <div id="lesson" class="lesson"><span class="lesson-symbol">↳</span><p></p></div>
+      <div id="identity-actions" class="identity-actions" hidden><button id="replay" class="accent">Replay with new IDs →</button><button id="repair" class="accent">Back up & repair this partition →</button><span id="repair-note"></span></div>
+      <div class="details-grid"><section class="trace-panel"><div class="panel-title"><h3>Event journal</h3><span id="result-status" class="status">READY</span></div><ol id="journal" aria-live="polite"></ol></section><section class="rows-panel"><div class="panel-title"><h3>Warehouse</h3><span class="mini">ORIGINAL USD AMOUNTS</span></div><div class="table-scroll"><table><thead><tr><th>Listing</th><th>Amount</th><th>Key</th></tr></thead><tbody id="rows"></tbody></table></div><div id="empty" class="empty" hidden>No rows were published.<br><span>The absence is part of this scenario.</span></div></section></div>
+    </section>
+  </main>
+  <footer><span>Built from lessons in Bakiano’s market-data pipeline. All examples are synthetic.</span><a href="https://bakiano.com" target="_blank" rel="noreferrer">Bakiano ↗</a></footer>
+</div>
+<script type="module" src="/demo/app.js"></script>
+</body></html>

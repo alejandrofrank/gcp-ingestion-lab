@@ -1,0 +1,9 @@
+name,price,code,url,timestamp,currency
+Leche Valle Entera 1 L,2.49,NULL,https://shop.example.test/milk-1l,2026-06-01T10:00:00.000Z,USD
+Leche Valle Entera 1 L,13.80,NULL,https://shop.example.test/milk-1l-six-pack,2026-06-01T10:00:00.000Z,USD
+Cafe Sierra 250 g,3.10,COF-250,https://shop.example.test/coffee-250g,2026-06-01T10:00:00.000Z,USD
+Pollo entero 1 kg,2.80,NULL,https://shop.example.test/whole-chicken,2026-06-01T10:00:00.000Z,USD
+Caldo de pollo 24 g,0.55,NULL,https://shop.example.test/chicken-stock,2026-06-01T10:00:00.000Z,USD
+Teclado Nimbus,39.00,NULL,https://shop.example.test/keyboard-standard,2026-06-01T10:00:00.000Z,USD
+Teclado Nimbus,93.00,NULL,https://shop.example.test/keyboard-pro,2026-06-01T10:00:00.000Z,USD
+Arroz Campo 1 kg,1.40,RIC-1000,https://shop.example.test/rice-1kg,2026-06-01T10:00:00.000Z,USD

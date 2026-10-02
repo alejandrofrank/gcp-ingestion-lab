@@ -1,0 +1,46 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  core:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: npm run demo
+      - run: npm run check:public
+  cloud-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build pinned SDK runtime
+        run: docker build -f cloud/Dockerfile -t ingestion-lab .
+      - name: Check optional SDK adapter imports without credentials
+        run: docker run --rm ingestion-lab node --input-type=module -e "import {gcpAdapters} from './src/gcp.js'; const a = await gcpAdapters({projectId:'sample-project',dataset:'ingestion_lab',archiveBucket:'example-archive',controlBucket:'example-control'}); if (!a.archive || !a.warehouse) process.exit(1);"
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.14.0
+      - run: terraform fmt -check -recursive
+        working-directory: terraform
+      - run: terraform init -backend=false
+        working-directory: terraform
+      - run: terraform validate
+        working-directory: terraform
