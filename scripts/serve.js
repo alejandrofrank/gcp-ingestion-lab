@@ -21,7 +21,7 @@ createServer(async (req, res) => {
       for await (const chunk of req) { body += chunk.toString(); if (Buffer.byteLength(body) > 4096) { respond(res, 413, { error: 'Request too large' }); req.destroy(); return; } }
       const input = JSON.parse(body);
       if (!['start', 'replay', 'repair'].includes(input.step ?? 'start')) return respond(res, 400, { error: 'Invalid step' });
-      return respond(res, 200, await runScenario(input.id, input.step));
+      return respond(res, 200, await runScenario(input.id, input.step, input.options));
     }
     if (req.method !== 'GET' && req.method !== 'HEAD') return respond(res, 405, { error: 'Method not allowed' });
     const relative = path === '/' ? 'demo/index.html' : path.slice(1);
