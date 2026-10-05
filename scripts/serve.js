@@ -5,7 +5,7 @@ import { resolve, extname } from 'node:path';
 import { SCENARIOS, runScenario } from '../examples/scenarios.js';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const port = Number(process.env.PORT ?? 4313), hosts = new Set([`127.0.0.1:${port}`, `localhost:${port}`]);
-const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.png': 'image/png' };
+const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg' };
 const respond = (res, status, data) => { res.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(data)); };
 createServer(async (req, res) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -25,7 +25,7 @@ createServer(async (req, res) => {
     }
     if (req.method !== 'GET' && req.method !== 'HEAD') return respond(res, 405, { error: 'Method not allowed' });
     const relative = path === '/' ? 'demo/index.html' : path.slice(1);
-    if (!/^(demo\/(index\.html|app\.js|style\.css)|docs\/images\/[a-z-]+\.(svg|png))$/.test(relative)) return respond(res, 404, { error: 'Not found' });
+    if (!/^(demo\/(index\.html|app\.js|style\.css)|docs\/images\/[a-z-]+\.(svg|png|jpg))$/.test(relative)) return respond(res, 404, { error: 'Not found' });
     const bytes = await readFile(resolve(root, relative));
     res.writeHead(200, { 'Content-Type': types[extname(relative)], 'Cache-Control': 'no-store' }).end(req.method === 'HEAD' ? undefined : bytes);
   } catch { respond(res, 400, { error: 'Could not run this scenario.' }); }
