@@ -1,13 +1,11 @@
 # GCP Ingestion Lab
 
-**Tiny files. Big consequences.**
-
-A visual, runnable lab for the failure boundaries in **Cloud Storage → Eventarc → Cloud Run → BigQuery**. Break an upload, replay an event, change product identity, and see which rows actually survive.
+A runnable lab for the failure boundaries in **Cloud Storage → Eventarc → Cloud Run → BigQuery**. Compare one loader rule at a time, inspect the operations it performs, and verify the resulting rows.
 
 [![CI](https://github.com/alejandrofrank/gcp-ingestion-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/alejandrofrank/gcp-ingestion-lab/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-a7e59b.svg)](LICENSE)
 
-![Source listings on the left, technique controls and interactive row tracing in the center, warehouse output on the right](docs/images/demo-desktop.jpg)
+![A duplicate-event experiment with source listings, loader rules, actual operation counts and a paired receipt comparison](docs/images/demo-desktop.jpg)
 
 ## Run it in 15 seconds
 
@@ -23,7 +21,11 @@ Open **http://127.0.0.1:4313**.
 
 The browser calls the real loader core with **in-memory adapters and synthetic fixtures**. Each tweak starts fresh; identity replay seeds an earlier partition explicitly. Cloud timing, billing and IAM behavior are not emulated. The upload-denial scenario injects an error; it does not change any permissions.
 
-Read the experiment **left → center → right**. Select a source listing to highlight its path through the identity rule into the actual warehouse result. Change the milk price or number of event copies, then switch identity, receipt and timestamp rules to see what changes. Counts, prices and connections come from the loader result, not a canned animation. Raw CSV and the event journal stay behind expandable details.
+Start with **Send it twice**. The question describes the input; the center compares the current receipt rule with its opposite. Both runs return eight rows, but one downloads and merges the file twice. Click **Use this rule** to make the other result current.
+
+Read the workspace **left → center → right**: source listings, rules and measured adapter operations, then current warehouse output. Pick a listing to compare its retained price in A and B. Change the milk price or delivery count to rerun both sides with the same input. The identity cases compare name-only keys with stable keys; the late-arrival case compares observation time with arrival order. Publication and schema failures show their stopping boundary because toggling a downstream rule cannot repair them.
+
+CSV, the full connection graph and the event journal are expandable evidence. The workbench has keyboard focus states, responsive layouts and reduced-motion support. Counts and prices come from loader executions, not a canned animation. See [how the comparisons work](docs/workbench.md).
 
 The lossy name rule, repeated-read adapter and last-arrival price rule live in `examples/techniques.js` for comparison. The cloud receiver uses the safe defaults and does not accept browser experiment settings.
 

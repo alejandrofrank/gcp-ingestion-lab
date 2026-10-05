@@ -1,7 +1,7 @@
 const $ = selector => document.querySelector(selector);
 const escape = text => String(text ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const palette = ['#b8efb0', '#e8c87c', '#94b8ff', '#b3a0ef', '#efabbf', '#80ccc7', '#deb188', '#a6c9db'];
-let scenarios = [], current = 'healthy', step = 'start', selected = 0, value, sequence = 0, controller, timer;
+let scenarios = [], current = 'duplicate', step = 'start', selected = 0, value, comparisonValue, sequence = 0, controller, timer;
 const money = amount => '$' + Number(amount).toFixed(2);
 const path = url => url?.replace('https://shop.example.test/', '/') ?? 'No URL';
 const basis = row => row.product_code ? 'CODE' : row.url ? 'URL' : 'NAME';
@@ -9,6 +9,43 @@ const blocked = data => ['invalid', 'missing_publication', 'rejected_event'].inc
 const nodeY = (index, count) => count === 1 ? 185 : 72 + index * 230 / (count - 1);
 const curve = (x1, y1, x2, y2) => 'M' + x1 + ' ' + y1 + ' C' + (x1 + (x2 - x1) * .45) + ' ' + y1 + ',' + (x2 - (x2 - x1) * .45) + ' ' + y2 + ',' + x2 + ' ' + y2;
 const safeId = id => id.slice(0, 5);
+const questions = {
+  healthy: ['What makes two same-name listings distinct?', 'Eight listings include two milk URLs and two keyboard URLs with identical titles. Change only the identity rule to see which survive.'],
+  duplicate: ['Can a duplicate event skip the file read and warehouse merge?', 'One archived CSV, delivered more than once. Compare the same input with and without the completed-event receipt.'],
+  denied: ['What happens when scraping succeeds but the upload fails?', 'Eight collected listings never become a published object. Loader settings cannot create the missing event.'],
+  schema: ['Can a CSV redefine the warehouse identity?', 'The source replaces its name column with product_id. The fixed schema rejects the file before the warehouse merge.'],
+  late: ['Which price wins when an older event arrives last?', 'Generation #42 contains the newer observation. Generation #41 is delivered after it. Compare observation time with delivery order.'],
+  receipt: ['What if the warehouse commits but the success receipt fails?', 'The first delivery commits rows, then fails to record completion. A retry must preserve the rows without duplicating them.'],
+  identity: ['Can changing the identity rule be fixed by a normal replay?', 'Name-only keys lose two listings. Replay with stable keys leaves the old keys behind. Inspect the explicit partition repair.'],
+};
+function oppositeRule() {
+  if (step !== 'start' || ['denied', 'schema'].includes(current)) return null;
+  const key = ['healthy', 'identity'].includes(current) ? 'identity' : current === 'late' ? 'latest' : 'receipts';
+  const other = key === 'identity' ? ($('#identity').value === 'stable' ? 'name' : 'stable') : $('#' + key).value !== 'true';
+  const names = { identity: { stable: 'Code → URL → name', name: 'Name only' }, receipts: { true: 'Skip with a receipt', false: 'Read & merge again' }, latest: { true: 'Newest observation', false: 'Last arrival' } };
+  return { key, other, title: names[key][String(other)], currentTitle: names[key][$('#' + key).value] };
+}
+function renderWork(data) {
+  const stages = [
+    ['Archive', data.metrics.archivedFiles, 'files retained'],
+    ['Event', data.metrics.deliveries, 'deliveries'],
+    ['Read', data.metrics.archiveReads, 'file downloads'],
+    ['Merge', data.metrics.mergeJobs, 'adapter calls'],
+    ['Receipt', data.metrics.skipped, 'deliveries skipped'],
+  ];
+  $('#operation-path').innerHTML = stages.map(([name, count, note]) => '<div class="' + (count ? 'performed' : 'idle') + '"><span>' + name + '</span><strong>' + count + '</strong><small>' + note + '</small></div>').join('');
+  const rule = oppositeRule();
+  if (!rule || !comparisonValue) {
+    $('#rule-comparison').innerHTML = '<p class="caption">' + (step !== 'start' ? 'This is an identity migration, not a single rule toggle. The replay and repair act on an explicitly seeded vendor/day partition.' : 'The failure occurs before a warehouse merge. Changing identity, receipts or timestamp rules cannot repair the source publication or schema.') + '</p>';
+    return;
+  }
+  const counters = [['Warehouse rows', 'warehouseRows'], ['Archive reads', 'archiveReads'], ['Merge calls', 'mergeJobs'], ['Skipped deliveries', 'skipped']];
+  const selectedPrice = result => {
+    const input = result.input.rows[selected], row = result.rows.find(item => item.url === input.url);
+    return row ? money(row.amount) : 'Not retained';
+  };
+  $('#rule-comparison').innerHTML = '<div class="comparison-heading"><h3>Change one rule</h3><span class="micro">Same input · fresh runs</span></div><div class="comparison-titles"><div><span class="method-letter">A</span><strong>' + escape(rule.currentTitle) + '</strong><small>Current result</small></div><div><span class="method-letter">B</span><strong>' + escape(rule.title) + '</strong><button id="use-opposite" type="button">Use this rule →</button></div></div><table class="comparison-table"><thead><tr><th>Observed measure</th><th>A</th><th>B</th></tr></thead><tbody>' + counters.map(([label, key]) => '<tr class="' + (data.metrics[key] !== comparisonValue.metrics[key] ? 'difference' : '') + '"><th scope="row">' + label + '</th><td>' + data.metrics[key] + '</td><td>' + comparisonValue.metrics[key] + '</td></tr>').join('') + '<tr class="' + (selectedPrice(data) !== selectedPrice(comparisonValue) ? 'difference' : '') + '"><th scope="row">Selected listing price</th><td>' + selectedPrice(data) + '</td><td>' + selectedPrice(comparisonValue) + '</td></tr></tbody></table><p class="micro comparison-note">Counts come from the real loader with memory adapters. They are not measured GCP timing or billing.</p>';
+}
 
 function controls(options) {
   $('#identity').value = options.identity;
@@ -53,7 +90,7 @@ function outcome(data) {
   if (current === 'late') return { title: 'Late arrival. Newer price preserved.', text: 'Generation #42 was observed at 10:05. The older 10:00 event cannot roll its $2.19 price back, even though it arrived last.', warning: false, status: 'LATEST PRESERVED' };
   if (!o.receipts && m.deliveries > 1) return { title: 'Same 8 rows. More repeated work.', text: m.deliveries + ' deliveries cause ' + m.archiveReads + ' reads and ' + m.mergeJobs + ' merges. Stable identities still prevent duplicate warehouse rows.', warning: true, status: 'REPEATED WORK' };
   if (current === 'receipt') return { title: 'A retry without a duplicate row.', text: 'The warehouse commits before the receipt write fails. The retry re-reads the file, but the second merge has nothing new to add.', warning: false, status: 'RETRY RECOVERED' };
-  if (m.skipped) return { title: m.deliveries + ' deliveries. Just one batch.', text: 'The first delivery writes eight observations and a receipt. The other ' + m.skipped + ' deliveries skip the download and merge.', warning: false, status: 'DUPLICATES SKIPPED' };
+  if (m.skipped) return { title: m.deliveries + ' deliveries. Just one batch.', text: 'The first delivery writes eight observations and a receipt. ' + m.skipped + ' repeated ' + (m.skipped === 1 ? 'delivery skips' : 'deliveries skip') + ' the download and merge.', warning: false, status: 'DUPLICATES SKIPPED' };
   return { title: '8 listings. 8 distinct observations.', text: 'Stable code or URL identities preserve same-name listings. One batch carries the source prices into the warehouse.', warning: false, status: 'ALL LISTINGS KEPT' };
 }
 
@@ -114,11 +151,14 @@ function renderSelection(data) {
   else detail = 'There is no corresponding warehouse observation.';
   $('#selection-detail').innerHTML = '<div class="selection-heading"><strong>' + escape(source.name) + '</strong><span class="detail-key">' + (blocked(data) ? 'Not merged' : 'Key ' + safeId(source.derived_id)) + '</span></div><p>' + escape(detail) + '</p>';
   renderGraph(data);
+  renderWork(data);
 }
 
 function render(data) {
   value = data;
   controls(data.options);
+  $('#question').textContent = questions[current][0];
+  $('#question-context').textContent = questions[current][1];
   $('#scenario-title').textContent = data.scenario.name;
   $('#scenario-tag').textContent = data.scenario.tag;
   $('#scenario-description').textContent = data.scenario.description;
@@ -135,7 +175,6 @@ function render(data) {
   $('#empty').hidden = data.rows.length > 0;
   $('#empty p').textContent = current === 'denied' ? 'No upload means no event. Nothing reached this table.' : 'The file was rejected. Existing warehouse data would remain untouched.';
   $('#output-summary').innerHTML = '<strong>' + data.rows.length + ' warehouse rows</strong><br>' + (step === 'replay' ? '6 earlier keys + 8 stable keys' : blocked(data) ? '0 listings published' : data.rows.length === data.input.rows.length ? 'All 8 source listings preserved' : '2 source listings lost to collisions');
-  for (const [id,count] of [['files',data.metrics.archivedFiles],['reads',data.metrics.archiveReads],['jobs',data.metrics.mergeJobs],['skips',data.metrics.skipped]]) $('#metric-'+id).textContent = count;
   $('#identity-actions').hidden = current !== 'identity' || (step === 'start' && data.options.identity !== 'name');
   $('#replay').hidden = step !== 'start';
   $('#repair').hidden = step !== 'replay';
@@ -155,10 +194,15 @@ async function run(nextStep = 'start') {
   $('#experiment').setAttribute('aria-busy','true');
   $('#run-state').textContent = 'Updating…';
   try {
-    const response = await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:current,step,options:options()}),signal:controller.signal});
-    if (!response.ok) throw new Error('This experiment could not run.');
-    const data = await response.json();
+    const send = async input => {
+      const response = await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input),signal:controller.signal});
+      if (!response.ok) throw new Error('This experiment could not run.');
+      return response.json();
+    };
+    const rule = oppositeRule(), input = { id:current, step, options:options() };
+    const [data, alternate] = await Promise.all([send(input), rule ? send({ ...input, options: { ...input.options, [rule.key]: rule.other } }) : null]);
     if (token !== sequence) return;
+    comparisonValue = alternate;
     render(data);
     $('#run-state').textContent = 'Ready · fresh run';
   } catch(error) {
@@ -168,8 +212,10 @@ async function run(nextStep = 'start') {
 function selectSource(event) {
   const target = event.target.closest('[data-source]');
   if (!target || !value) return;
+  const restoreFocus = document.activeElement === target;
   selected=Number(target.dataset.source);
   renderSelection(value);
+  if (restoreFocus) $('#input-rows [data-source="'+selected+'"]').focus({preventScroll:true});
 }
 function schedule() {
   updateKnobs(); clearTimeout(timer);
@@ -185,13 +231,24 @@ function updatePreset() {
   $('#preset-position').textContent=String(index+1).padStart(2,'0')+' / '+String(scenarios.length).padStart(2,'0');
   $('#previous-experiment').disabled=index<=0;
   $('#next-experiment').disabled=index>=scenarios.length-1;
+  $('#experiment-list').innerHTML = scenarios.map((scenario, i) => '<button type="button" data-experiment="' + scenario.id + '" aria-pressed="' + (scenario.id === current) + '"><span>' + String(i + 1).padStart(2, '0') + '</span><strong>' + escape(scenario.name) + '</strong><small>' + escape(scenario.tag) + '</small><b aria-hidden="true">↗</b></button>').join('');
 }
 function choosePreset(id) {
   const scenario=scenarios.find(item=>item.id===id);
   if(!scenario) return;
   current=id; step='start'; selected=0;
   updatePreset(); controls(scenario.defaults); run();
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) $('.question-panel').animate([{ opacity: .6, transform: 'translateY(4px)' }, { opacity: 1, transform: 'translateY(0)' }], {duration:220,easing:'ease-out'});
 }
+$('#experiment-list').addEventListener('click',event=>{
+  const button=event.target.closest('[data-experiment]');
+  if(button) { choosePreset(button.dataset.experiment); $('#experiment-list [aria-pressed=true]').focus({preventScroll:true}); }
+});
+$('#rule-comparison').addEventListener('click',event=>{
+  if (!event.target.closest('#use-opposite')) return;
+  const rule=oppositeRule(); if(!rule) return;
+  $('#'+rule.key).value=String(rule.other); updateKnobs(); run('start');
+});
 $('#input-rows').addEventListener('click',selectSource);
 $('#lineage').addEventListener('click',selectSource);
 $('#lineage').addEventListener('keydown',event=>{ if(['Enter',' '].includes(event.key)) { event.preventDefault(); selectSource(event); $('#input-rows [data-source="'+selected+'"]').focus({preventScroll:true}); } });
@@ -216,6 +273,6 @@ try {
   scenarios=await response.json();
   $('#preset').innerHTML=scenarios.map(s=>'<option value="'+escape(s.id)+'">'+escape(s.name)+'</option>').join('');
   $('#preset').disabled=false; $('#reset').disabled=false; updatePreset();
-  controls(scenarios[0].defaults);
+  controls(scenarios.find(scenario=>scenario.id===current).defaults);
   await run();
 } catch(error) { $('#run-state').textContent=error.message; }
