@@ -1,6 +1,6 @@
 # Lab color palettes
 
-Use **Colors** in the header to try three directions: Graphite / amber, Slate / cyan and Ink / lilac. Graphite / amber is the initial default. The choice is saved in this lab's browser storage; storage failures still leave the selector usable.
+Use **Colors** in the header to try three directions: Slate / blue, Graphite / grey and Midnight / blue. Slate / blue is the initial default. The choice is saved in this lab's browser storage; storage failures still leave the selector usable.
 
 Palette changes only update CSS tokens. They do not rerun an experiment, change a dataset or submit a model/cloud request. All layouts and evidence remain available.
 
