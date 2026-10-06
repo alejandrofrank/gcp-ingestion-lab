@@ -25,7 +25,7 @@ createServer(async (req, res) => {
     }
     if (req.method !== 'GET' && req.method !== 'HEAD') return respond(res, 405, { error: 'Method not allowed' });
     const relative = path === '/' ? 'demo/index.html' : path.slice(1);
-    if (!/^(demo\/(index\.html|app\.js|style\.css)|docs\/images\/[a-z-]+\.(svg|png|jpg))$/.test(relative)) return respond(res, 404, { error: 'Not found' });
+    if (!/^(demo\/(index\.html|app\.js|style\.css|palette\.(css|js))|docs\/images\/[a-z-]+\.(svg|png|jpg))$/.test(relative)) return respond(res, 404, { error: 'Not found' });
     const bytes = await readFile(resolve(root, relative));
     res.writeHead(200, { 'Content-Type': types[extname(relative)], 'Cache-Control': 'no-store' }).end(req.method === 'HEAD' ? undefined : bytes);
   } catch { respond(res, 400, { error: 'Could not run this scenario.' }); }
