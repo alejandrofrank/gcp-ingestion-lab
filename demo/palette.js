@@ -1,7 +1,7 @@
-const palettes=[['amber','Graphite · amber'],['cyan','Slate · cyan'],['lilac','Ink · lilac']];
-const key='bakiano.lab.palette.v1';
-let selected='amber';
-try { const saved=localStorage.getItem(key); if(palettes.some(([id])=>id===saved))selected=saved; } catch { /* Storage may be unavailable; the default remains usable. */ }
+const palettes=[['slate','Slate · blue'],['graphite','Graphite · grey'],['midnight','Midnight · blue']];
+const key='bakiano.lab.palette.v2';
+let selected='slate';
+try { const saved=localStorage.getItem(key); if(palettes.some(([id])=>id===saved))selected=saved; } catch { /* The default remains usable when storage is blocked. */ }
 document.documentElement.dataset.labPalette=selected;
 const target=document.querySelector('.app-header nav,.top-right,.wrap>nav .row');
 if(target && !document.querySelector('[data-lab-palette-control]')) {

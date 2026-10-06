@@ -1,28 +1,28 @@
-/* Shared lab palettes. Hue changes emphasis; outcome colors retain their meaning. */
+/* Dim blue and neutral lab palettes. Outcome colors retain their meaning. */
 :root {
-  --bg:#151411; --panel:#211f1a; --surface:#211f1a; --raised:#2d2922;
-  --line:#4f473a; --text:#f4eee3; --muted:#c0b7a7;
-  --accent:#f3c77d; --accent-soft:#382d1c; --input:#171613;
-  --mint:#9ed8b7; --success-surface:#1d2d25;
-  --amber:#f2cf87; --warning-surface:#352b1c;
-  --red:#f1a2a4; --danger-surface:#382326;
+  --bg:#0e131a; --panel:#17212e; --surface:#17212e; --raised:#202d3e;
+  --line:#354354; --text:#e5e9f0; --muted:#a8b2c0;
+  --accent:#92b9e8; --accent-soft:#1c3550; --input:#0b111b;
+  --mint:#a1ccb7; --success-surface:#192c25;
+  --amber:#d7c094; --warning-surface:#302a20;
+  --red:#d99da6; --danger-surface:#30232b;
   --blue:var(--accent); --lime:var(--mint); --orange:var(--amber);
 }
-:root[data-lab-palette="cyan"] {
-  --bg:#10191b; --panel:#182326; --surface:#182326; --raised:#203034;
-  --line:#43565a; --text:#e7f2f1; --muted:#afc3c3;
-  --accent:#8ddbd8; --accent-soft:#1e3e40; --input:#101b1e;
-  --mint:#addba9; --success-surface:#203126;
-  --amber:#edc791; --warning-surface:#352c20;
-  --red:#eaa5ae; --danger-surface:#35232a;
+:root[data-lab-palette="graphite"] {
+  --bg:#111315; --panel:#1a1e22; --surface:#1a1e22; --raised:#252b31;
+  --line:#3c454f; --text:#e7e9ed; --muted:#adb4be;
+  --accent:#aec1d8; --accent-soft:#29343f; --input:#0e1115;
+  --mint:#aac9bb; --success-surface:#202b26;
+  --amber:#d3c3a0; --warning-surface:#302c23;
+  --red:#d5a3ac; --danger-surface:#2e2429;
 }
-:root[data-lab-palette="lilac"] {
-  --bg:#17141e; --panel:#241f2c; --surface:#241f2c; --raised:#302939;
-  --line:#554660; --text:#f0eaf5; --muted:#c3b7ce;
-  --accent:#cbb1f4; --accent-soft:#3b2b50; --input:#191420;
-  --mint:#abe0c0; --success-surface:#203129;
-  --amber:#f0cc96; --warning-surface:#352d23;
-  --red:#f0a3b3; --danger-surface:#382430;
+:root[data-lab-palette="midnight"] {
+  --bg:#090e15; --panel:#111a27; --surface:#111a27; --raised:#1a2637;
+  --line:#2f3b4c; --text:#dce3ec; --muted:#9faec0;
+  --accent:#8daadd; --accent-soft:#1b2c45; --input:#080d15;
+  --mint:#9ac3b0; --success-surface:#14251f;
+  --amber:#ccb996; --warning-surface:#2a261e;
+  --red:#d098a5; --danger-surface:#2a1e27;
 }
 body { background:var(--bg); color:var(--text); }
 a,summary { color:var(--accent); }
@@ -62,7 +62,7 @@ input[type=range] { accent-color:var(--accent); }
 #quick-cases button { background:var(--raised); border-color:var(--line); color:var(--text); }
 .selection-detail { background:var(--input); border-color:var(--line); }
 .source-key,.output-url,.output-time,.count,.journal-panel summary,#journal li { color:var(--muted); }
-.technique-panel { background:var(--success-surface); border-color:var(--line); border-top-color:var(--mint); }
+.technique-panel { background:var(--panel); border-color:var(--line); border-top-color:var(--accent); }
 .output-panel { background:var(--panel); border-color:var(--line); border-top-color:var(--accent); }
 .output-panel .eyebrow { color:var(--accent); }
 .source-row.selected,.output-row.selected,.chain-record[aria-pressed=true] { background:var(--accent-soft); border-color:var(--accent); box-shadow:inset 3px 0 var(--accent); }
@@ -78,10 +78,11 @@ input[type=range] { accent-color:var(--accent); }
 .scan-track rect { fill:var(--accent); }
 .source-meta,.output-meta,.comparison-titles,.comparison-titles>div:last-child,.comparison-table th,.comparison-table td,.comparison-note,th,td { border-color:var(--line); }
 .comparison-table thead { color:var(--muted); }
-.comparison-titles>div:last-child,.comparison-table tr.difference,.explanation,.matched-listings button,.identity-card,.chain-coverage .covered {
+.comparison-table tr.difference,.explanation,.matched-listings button,.identity-card,.chain-coverage .covered {
   background:var(--success-surface); border-color:color-mix(in srgb,var(--mint) 40%,var(--line)); color:var(--text);
 }
 .explanation { border-left-color:var(--mint); }
+.comparison-titles>div:last-child { background:var(--raised); border-color:var(--line); }
 .identity-card[aria-pressed=true] { background:var(--success-surface); border-color:var(--mint); box-shadow:inset 3px 0 var(--mint); }
 .identity-chips>span { background:var(--panel); border-color:var(--line); }
 .identity-card-top,.identity-chips code,.identity-members,.enrichment-table .field-same td,.result-sets>div:last-child span,.chain-coverage .covered { color:var(--mint); }

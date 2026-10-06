@@ -7,7 +7,7 @@ A runnable lab for the failure boundaries in **Cloud Storage → Eventarc → Cl
 
 ![A duplicate-event experiment with source listings, loader rules, actual operation counts and a paired receipt comparison](docs/images/demo-desktop.jpg)
 
-Use **Colors** in the header to try Graphite / amber, Slate / cyan or Ink / lilac. The selection is saved locally and does not restart an experiment. Outcome colors retain their meaning. [Palette controls](docs/palettes.md).
+Use **Colors** in the header to try Slate / blue, Graphite / grey or Midnight / blue. The selection is saved locally and does not restart an experiment. Outcome colors retain their meaning. [Palette controls](docs/palettes.md).
 
 ## Run it in 15 seconds
 
