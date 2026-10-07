@@ -27,3 +27,5 @@ Expand the CSV to inspect raw bytes, the connection diagram to trace all keys, o
 Each edit starts fresh. All listings are synthetic; local adapters are not a cloud emulator. The unsafe comparison rules cannot be supplied to the deployed cloud receiver.
 
 ![Mobile duplicate-event comparison](images/demo-mobile.jpg)
+
+See the [capture recipes](screenshots.md) when refreshing the UI images.
